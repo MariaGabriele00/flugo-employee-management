@@ -1,46 +1,68 @@
-# Getting Started with Create React App
+# Flugo - Employee Management
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Este projeto consiste em um sistema para gestão de colaboradores com sincronização em tempo real utilizando Firebase Firestore.
 
-## Available Scripts
+## Requisitos Prévios
 
-In the project directory, you can run:
+Antes de começar, você precisará ter instalado em sua máquina:
 
-### `npm start`
+- Node.js (versão 16 ou superior)
+- Um gerenciador de pacotes (npm ou yarn)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Guia de Instalação e Execução Local
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 1. Clonar o Repositório
 
-### `npm test`
+Abra o seu terminal e execute o comando abaixo para baixar o projeto:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+git clone https://github.com/MariaGabriele00/flugo-employee-management.git
+cd flugo-employee-management
 
-### `npm run build`
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 2. Instalar Dependências
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Instale todos os pacotes necessários listados no arquivo package.json:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm install
 
-### `npm run eject`
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### 3. Configurar Variáveis de Ambiente
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+O projeto depende do Firebase para funcionar. Crie um arquivo chamado **.env** na raiz do projeto e preencha com as suas credenciais obtidas no Console do Firebase:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```env
+REACT_APP_FIREBASE_API_KEY=
+REACT_APP_FIREBASE_AUTH_DOMAIN=
+REACT_APP_FIREBASE_PROJECT_ID=
+REACT_APP_FIREBASE_STORAGE_BUCKET=
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=
+REACT_APP_FIREBASE_APP_ID=
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```
 
-## Learn More
+### 4. Executar o Projeto
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Para iniciar o servidor de desenvolvimento e visualizar o projeto no navegador:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm start
+
+```
+
+O sistema abrirá automaticamente no endereço **http://localhost:3000**.
+
+## Tecnologias Utilizadas
+
+- React 18 e TypeScript
+- Material UI v6 (Componentização e UI)
+- Firebase Firestore (Banco de dados em tempo real)
+- Zod (Validação de dados)
+- React Router DOM (Navegação SPA)
+
+## Observação sobre o Deploy
+
+Para rodar este projeto em ambientes de produção (como Vercel ou Netlify), as variáveis de ambiente devem ser configuradas nas definições do projeto no painel do serviço de hospedagem escolhido.

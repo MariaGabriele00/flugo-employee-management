@@ -1,0 +1,89 @@
+import { useState } from "react";
+import { Employee } from "../types/employee";
+import { employeeService } from "../services/firebase";
+
+const initialData: Employee = {
+  name: "",
+  email: "",
+  active: true,
+  department: "",
+  avatar: "",
+};
+
+export const useEmployeesForm = (existingEmployees: Employee[]) => {
+  const [activeStep, setActiveStep] = useState(0);
+  const [formData, setFormData] = useState<Employee>(initialData);
+  const [errors, setErrors] = useState<any>({});
+  const [loading, setLoading] = useState(false);
+
+  const updateField = (field: keyof Employee, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) setErrors((prev: any) => ({ ...prev, [field]: null }));
+  };
+
+  const validateStep = () => {
+    const newErrors: any = {};
+
+    if (activeStep === 0) {
+      if (!formData.name) newErrors.name = "Nome é obrigatório";
+      if (!formData.email) newErrors.email = "E-mail é obrigatório";
+      const emailExists = existingEmployees.some(
+        (e) => e.email === formData.email && e.id !== formData.id
+      );
+      if (emailExists) newErrors.email = "Este e-mail já está cadastrado";
+    }
+
+    if (activeStep === 1) {
+      if (!formData.department)
+        newErrors.department = "Selecione um departamento";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateStep()) setActiveStep((prev) => prev + 1);
+  };
+
+  const handleBack = () => setActiveStep((prev) => prev - 1);
+
+  const resetForm = () => {
+    setFormData(initialData);
+    setActiveStep(0);
+    setErrors({});
+  };
+
+  const prepareEdit = (employee: Employee) => {
+    setFormData(employee);
+    setActiveStep(0);
+    setErrors({});
+  };
+
+  const submitForm = async () => {
+    if (!validateStep()) return false;
+
+    setLoading(true);
+    try {
+      await employeeService.save(formData);
+      return true;
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    activeStep,
+    formData,
+    errors,
+    loading,
+    updateField,
+    handleNext,
+    handleBack,
+    submitForm,
+    resetForm,
+    prepareEdit,
+  };
+};
