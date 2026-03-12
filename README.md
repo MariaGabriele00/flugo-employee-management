@@ -63,6 +63,6 @@ O sistema abrirá automaticamente no endereço **http://localhost:3000**.
 - Zod (Validação de dados)
 - React Router DOM (Navegação SPA)
 
-## Observação sobre o Deploy
+## Teste já
 
-Para rodar este projeto em ambientes de produção (como Vercel ou Netlify), as variáveis de ambiente devem ser configuradas nas definições do projeto no painel do serviço de hospedagem escolhido.
+**https://flugo-employee-management.vercel.app/**.
