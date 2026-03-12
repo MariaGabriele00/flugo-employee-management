@@ -1,4 +1,4 @@
-# Flugo - Employee Management
+# Flugo - Cadastro de colaboradores
 
 Este projeto consiste em um sistema para gestão de colaboradores com sincronização em tempo real utilizando Firebase Firestore.
 
