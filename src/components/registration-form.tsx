@@ -181,10 +181,10 @@ const RegistrationForm: React.FC<Props> = (props) => {
                 sx={{
                   color: "#37474f",
                   fontWeight: "bold",
-                  visibility: props.activeStep === 0 ? "hidden" : "visible",
+                  visibility: "visible",
                 }}
               >
-                Voltar
+                {props.activeStep === 0 ? "Cancelar" : "Voltar"}
               </Button>
               <Button
                 variant="contained"

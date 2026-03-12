@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Employee } from "../types/employee";
 import { employeeService } from "../services/firebase";
+import {
+  employeeSchema,
+  stepProfissionaisSchema,
+} from "../schemas/employee-schema";
 
 const initialData: Employee = {
   name: "",
@@ -22,20 +26,24 @@ export const useEmployeesForm = (existingEmployees: Employee[]) => {
   };
 
   const validateStep = () => {
+    const schema = activeStep === 0 ? employeeSchema : stepProfissionaisSchema;
+
+    const result = schema.safeParse(formData);
     const newErrors: any = {};
 
-    if (activeStep === 0) {
-      if (!formData.name) newErrors.name = "Nome é obrigatório";
-      if (!formData.email) newErrors.email = "E-mail é obrigatório";
+    if (!result.success) {
+      result.error.issues.forEach((issue) => {
+        newErrors[issue.path[0]] = issue.message;
+      });
+    }
+
+    if (activeStep === 0 && formData.email) {
       const emailExists = existingEmployees.some(
         (e) => e.email === formData.email && e.id !== formData.id
       );
-      if (emailExists) newErrors.email = "Este e-mail já está cadastrado";
-    }
-
-    if (activeStep === 1) {
-      if (!formData.department)
-        newErrors.department = "Selecione um departamento";
+      if (emailExists) {
+        newErrors.email = "Este e-mail já está cadastrado";
+      }
     }
 
     setErrors(newErrors);
