@@ -32,6 +32,7 @@ import {
   useTheme,
   Chip,
   Checkbox,
+  TableSortLabel,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -42,6 +43,7 @@ import AddBusinessIcon from "@mui/icons-material/AddBusiness";
 import GroupIcon from "@mui/icons-material/Group";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { Building2 } from "lucide-react";
 import { departmentService } from "../../services/department-service";
 import { employeeService } from "../../services/firebase";
@@ -109,6 +111,12 @@ const Departments: React.FC = () => {
       return vB.localeCompare(vA);
     });
   }, [departments, searchTerm, order, orderBy]);
+
+  const handleSort = (property: keyof DepartmentData) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -180,7 +188,6 @@ const Departments: React.FC = () => {
         idsArray.includes(d.id!) &&
         allEmployees.some((e) => e.departmentId === d.name)
     );
-
     if (deptsWithMembers.length > 0) {
       showFeedback(
         `Bloqueado: Setores com membros vinculados (${deptsWithMembers
@@ -190,7 +197,6 @@ const Departments: React.FC = () => {
       );
       return;
     }
-
     setIdsToDelete(idsArray);
     setDeleteModalOpen(true);
   };
@@ -463,8 +469,26 @@ const Departments: React.FC = () => {
                     }}
                   />
                 </TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Nome do Setor</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Gestor</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>
+                  <TableSortLabel
+                    active={orderBy === "name"}
+                    direction={orderBy === "name" ? order : "asc"}
+                    onClick={() => handleSort("name")}
+                    IconComponent={ArrowDownwardIcon}
+                  >
+                    Nome do Setor
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>
+                  <TableSortLabel
+                    active={orderBy === "manager"}
+                    direction={orderBy === "manager" ? order : "asc"}
+                    onClick={() => handleSort("manager")}
+                    IconComponent={ArrowDownwardIcon}
+                  >
+                    Gestor
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell align="center" sx={{ fontWeight: 700, width: 100 }}>
                   Ações
                 </TableCell>
