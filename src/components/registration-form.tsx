@@ -11,11 +11,14 @@ import {
   Grid,
   StepIconProps,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Employee } from "../types/employee";
 import BasicInfoStep from "./basic-info-step";
 import ProfessionalInfoStep from "./professional-info-step";
+import { useFormDependencies } from "../hooks/use-form-dependencies";
 
 interface Props {
   activeStep: number;
@@ -55,10 +58,13 @@ const CustomStepIcon = (props: StepIconProps) => {
 };
 
 const RegistrationForm: React.FC<Props> = (props) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const location = useLocation();
   const isEditing = location.pathname === "/editar";
   const steps = ["Infos Básicas", "Infos Profissionais"];
   const progress = props.isCompleted ? 100 : props.activeStep === 0 ? 0 : 50;
+  const { departments, managers, loading: loadingDeps } = useFormDependencies();
 
   return (
     <Box>
@@ -66,7 +72,7 @@ const RegistrationForm: React.FC<Props> = (props) => {
         <Typography
           variant="body2"
           sx={{
-            fontWeight: props.activeStep === 0 ? "bold" : "normal",
+            fontWeight: props.activeStep === 0 ? 700 : 400,
             color: props.activeStep === 0 ? "#37474f" : "#90a4ae",
           }}
         >
@@ -78,7 +84,7 @@ const RegistrationForm: React.FC<Props> = (props) => {
         <Typography
           variant="body2"
           sx={{
-            fontWeight: props.activeStep === 1 ? "bold" : "normal",
+            fontWeight: props.activeStep === 1 ? 700 : 400,
             color: props.activeStep === 1 ? "#37474f" : "#90a4ae",
           }}
         >
@@ -86,7 +92,7 @@ const RegistrationForm: React.FC<Props> = (props) => {
         </Typography>
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 6 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4 }}>
         <LinearProgress
           variant="determinate"
           value={progress}
@@ -95,10 +101,7 @@ const RegistrationForm: React.FC<Props> = (props) => {
             height: 4,
             borderRadius: 2,
             bgcolor: "#e0f2f1",
-            "& .MuiLinearProgress-bar": {
-              bgcolor: "#2ecc71",
-              transition: "transform 0.4s ease-in-out",
-            },
+            "& .MuiLinearProgress-bar": { bgcolor: "#2ecc71" },
           }}
         />
         <Typography variant="body2" fontWeight="bold" color="#90a4ae">
@@ -106,11 +109,12 @@ const RegistrationForm: React.FC<Props> = (props) => {
         </Typography>
       </Box>
 
-      <Grid container spacing={10}>
+      <Grid container spacing={{ xs: 4, md: 10 }}>
         <Grid size={{ xs: 12, md: 3 }}>
           <Stepper
             activeStep={props.isCompleted ? 2 : props.activeStep}
-            orientation="vertical"
+            orientation={isMobile ? "horizontal" : "vertical"}
+            sx={{ mb: { xs: 4, md: 0 } }}
           >
             {steps.map((label, index) => (
               <Step
@@ -118,21 +122,23 @@ const RegistrationForm: React.FC<Props> = (props) => {
                 completed={props.isCompleted || props.activeStep > index}
               >
                 <StepLabel slots={{ stepIcon: CustomStepIcon }}>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight:
-                        props.activeStep === index && !props.isCompleted
-                          ? "bold"
-                          : "normal",
-                      color:
-                        props.activeStep === index && !props.isCompleted
-                          ? "#37474f"
-                          : "#90a4ae",
-                    }}
-                  >
-                    {label}
-                  </Typography>
+                  {!isMobile && (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight:
+                          props.activeStep === index && !props.isCompleted
+                            ? 700
+                            : 400,
+                        color:
+                          props.activeStep === index && !props.isCompleted
+                            ? "#37474f"
+                            : "#90a4ae",
+                      }}
+                    >
+                      {label}
+                    </Typography>
+                  )}
                 </StepLabel>
               </Step>
             ))}
@@ -140,11 +146,15 @@ const RegistrationForm: React.FC<Props> = (props) => {
         </Grid>
 
         <Grid size={{ xs: 12, md: 9 }}>
-          <Box sx={{ maxWidth: 600 }}>
+          <Box sx={{ maxWidth: 600, mx: { xs: "auto", md: 0 } }}>
             <Typography
               variant="h5"
               fontWeight="bold"
-              sx={{ mb: 4, color: "#546e7a" }}
+              sx={{
+                mb: 4,
+                color: "#546e7a",
+                textAlign: { xs: "center", md: "left" },
+              }}
             >
               {isEditing
                 ? "Editar Colaborador"
@@ -165,6 +175,9 @@ const RegistrationForm: React.FC<Props> = (props) => {
                 data={props.formData}
                 onUpdate={props.updateField}
                 errors={props.errors}
+                departments={departments}
+                managers={managers}
+                loadingDeps={loadingDeps}
               />
             )}
 
@@ -172,17 +185,13 @@ const RegistrationForm: React.FC<Props> = (props) => {
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                mt: 15,
+                mt: 6,
                 alignItems: "center",
               }}
             >
               <Button
                 onClick={props.handleBack}
-                sx={{
-                  color: "#37474f",
-                  fontWeight: "bold",
-                  visibility: "visible",
-                }}
+                sx={{ color: "#37474f", fontWeight: "bold" }}
               >
                 {props.activeStep === 0 ? "Cancelar" : "Voltar"}
               </Button>
@@ -194,11 +203,9 @@ const RegistrationForm: React.FC<Props> = (props) => {
                 disabled={props.loading}
                 sx={{
                   bgcolor: "#2ecc71",
-                  color: "#ffffff",
-                  "&:hover": { bgcolor: "#27ae60" },
                   borderRadius: "8px",
                   px: 4,
-                  minWidth: 120,
+                  "&:hover": { bgcolor: "#27ae60" },
                 }}
               >
                 {props.loading ? (

@@ -14,6 +14,8 @@ interface Props {
   onClose: () => void;
   onConfirm: () => void;
   loading?: boolean;
+  title: string;
+  description: string;
 }
 
 const DeleteModal: React.FC<Props> = ({
@@ -21,22 +23,17 @@ const DeleteModal: React.FC<Props> = ({
   onClose,
   onConfirm,
   loading,
+  title,
+  description,
 }) => {
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      slots={{
-        transition: Zoom,
-      }}
+      slots={{ transition: Zoom }}
       slotProps={{
         paper: {
-          sx: {
-            borderRadius: 4,
-            p: 1,
-            maxWidth: 400,
-            textAlign: "center",
-          },
+          sx: { borderRadius: 4, p: 1, maxWidth: 400, textAlign: "center" },
         },
       }}
     >
@@ -63,16 +60,12 @@ const DeleteModal: React.FC<Props> = ({
           >
             <WarningAmberIcon sx={{ fontSize: 40, color: "#ef4444" }} />
           </Box>
-
           <Typography variant="h5" fontWeight="800" color="#1e293b">
-            Excluir Colaborador?
+            {title}
           </Typography>
-
           <Typography variant="body2" color="#64748b" sx={{ px: 2 }}>
-            Esta ação é permanente e não poderá ser desfeita. O colaborador será
-            removido da base de dados.
+            {description}
           </Typography>
-
           <Box sx={{ display: "flex", gap: 2, width: "100%", mt: 3 }}>
             <Button
               fullWidth

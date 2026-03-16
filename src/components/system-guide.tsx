@@ -11,10 +11,10 @@ import {
   Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import PeopleIcon from "@mui/icons-material/People";
-import AddBoxIcon from "@mui/icons-material/AddBox";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import ApartmentIcon from "@mui/icons-material/Apartment";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 
 interface Props {
   open: boolean;
@@ -24,24 +24,24 @@ interface Props {
 const SystemGuide: React.FC<Props> = ({ open, onClose }) => {
   const itensGuia = [
     {
-      icon: <PeopleIcon />,
-      title: "Gestão de Lista",
-      desc: "Visualize todos os colaboradores. Use as setas no cabeçalho para ordenar por nome, e-mail ou departamento.",
+      icon: <AdminPanelSettingsIcon />,
+      title: "Acesso Restrito",
+      desc: "O sistema é protegido por autenticação Firebase. Apenas usuários logados podem gerenciar colaboradores e departamentos.",
     },
     {
-      icon: <AddBoxIcon />,
-      title: "Novo Cadastro",
-      desc: "O cadastro é feito em 2 etapas: Informações Básicas (com upload de foto) e Informações Profissionais.",
+      icon: <ApartmentIcon />,
+      title: "Gestão de Setores",
+      desc: "Cadastre departamentos e vincule gestores. Você pode visualizar todos os membros de um setor diretamente na edição.",
     },
     {
-      icon: <EditIcon />,
-      title: "Edição Rápida",
-      desc: "Clique no ícone de lápis verde para carregar os dados de um colaborador e realizar alterações.",
+      icon: <DeleteSweepIcon />,
+      title: "Ações em Massa",
+      desc: "Na listagem principal, selecione múltiplos colaboradores para realizar a exclusão em massa de forma rápida e segura.",
     },
     {
-      icon: <DeleteIcon />,
-      title: "Exclusão Segura",
-      desc: "Ao excluir, um modal de confirmação aparecerá. Uma vez confirmado, os dados são removidos permanentemente.",
+      icon: <AccountCircleIcon />,
+      title: "Meu Perfil",
+      desc: "Personalize sua experiência alterando seu nome de exibição e foto de perfil, salvos automaticamente no banco de dados.",
     },
   ];
 
@@ -65,7 +65,7 @@ const SystemGuide: React.FC<Props> = ({ open, onClose }) => {
         }}
       >
         <Typography variant="h5" fontWeight="800" color="#1e293b">
-          Guia do Usuário
+          Guia de Funcionalidades
         </Typography>
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
@@ -73,8 +73,8 @@ const SystemGuide: React.FC<Props> = ({ open, onClose }) => {
       </DialogTitle>
       <DialogContent>
         <Typography variant="body1" color="#64748b" mb={4}>
-          Bem-vindo ao sistema da Flugo. Aqui está um resumo de como navegar e
-          utilizar as ferramentas de gerenciamento:
+          O painel administrativo da Flugo foi atualizado. Confira as regras
+          essenciais para a operação do sistema:
         </Typography>
 
         <Grid container spacing={4}>
@@ -112,24 +112,25 @@ const SystemGuide: React.FC<Props> = ({ open, onClose }) => {
 
         <Box
           sx={{
-            bgcolor: "#f8fafc",
+            bgcolor: "#fff1f2",
             p: 3,
             borderRadius: 3,
-            border: "1px solid #f1f5f9",
+            border: "1px solid #ffe4e6",
           }}
         >
           <Typography
             variant="subtitle2"
             fontWeight="700"
-            color="#334155"
+            color="#be123c"
             mb={1}
           >
-            Dica Pro:
+            Regras de Integridade:
           </Typography>
-          <Typography variant="body2" color="#64748b">
-            O sistema salva os dados em tempo real no Firebase. Certifique-se de
-            que o e-mail do colaborador seja único, caso contrário, o formulário
-            impedirá o avanço para a segunda etapa.
+          <Typography variant="body2" color="#be123c">
+            Um departamento não pode ser excluído se houver colaboradores
+            vinculados a ele. Para excluir um setor, transfira os membros para
+            outra área primeiro. Além disso, o Gestor Responsável deve ser um
+            colaborador já cadastrado com nível hierárquico de "Gestor".
           </Typography>
         </Box>
       </DialogContent>

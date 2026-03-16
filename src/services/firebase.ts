@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 import {
   getFirestore,
   collection,
@@ -6,8 +7,13 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  getDocs,
+  query,
+  orderBy,
+  writeBatch,
 } from "firebase/firestore";
 import { Employee } from "../types/employee";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -19,20 +25,46 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
 export const db = getFirestore(app);
+export const auth = getAuth(app);
 
 export const employeeService = {
-  async save(employee: Employee) {
-    if (employee.id) {
-      const docRef = doc(db, "colaboradores", employee.id);
-      const { id, ...data } = employee;
-      return await updateDoc(docRef, data);
-    }
+  async getAll() {
+    const q = query(collection(db, "colaboradores"), orderBy("name", "asc"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Employee[];
+  },
 
-    return await addDoc(collection(db, "colaboradores"), employee);
+  async save(employee: Employee) {
+    const { id, ...data } = employee;
+    if (id) {
+      const docRef = doc(db, "colaboradores", id);
+      return await updateDoc(docRef, data as any);
+    }
+    return await addDoc(collection(db, "colaboradores"), data);
+  },
+
+  async update(id: string, data: Partial<Employee>) {
+    const docRef = doc(db, "colaboradores", id);
+    return await updateDoc(docRef, data as any);
   },
 
   async delete(id: string) {
     return await deleteDoc(doc(db, "colaboradores", id));
   },
+
+  async deleteMany(ids: string[]) {
+    const batch = writeBatch(db);
+    ids.forEach((id) => {
+      const docRef = doc(db, "colaboradores", id);
+      batch.delete(docRef);
+    });
+    return await batch.commit();
+  },
 };
+
+export const storage = getStorage(app);

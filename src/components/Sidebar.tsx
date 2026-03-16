@@ -12,6 +12,7 @@ import {
   Button,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
+import ApartmentIcon from "@mui/icons-material/Apartment";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
@@ -27,6 +28,19 @@ const Sidebar: React.FC<{
   const navigate = useNavigate();
   const location = useLocation();
   const [guiaOpen, setGuiaOpen] = useState(false);
+
+  const menuItems = [
+    {
+      text: "Colaboradores",
+      path: "/",
+      icon: <PersonIcon sx={{ color: "#6d6d6dff", fontSize: 18 }} />,
+    },
+    {
+      text: "Departamentos",
+      path: "/departamentos",
+      icon: <ApartmentIcon sx={{ color: "#6d6d6dff", fontSize: 18 }} />,
+    },
+  ];
 
   const content = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -47,41 +61,63 @@ const Sidebar: React.FC<{
       </Box>
 
       <List sx={{ px: 2, flexGrow: 1 }}>
-        <ListItem disablePadding>
-          <ListItemButton
-            onClick={() => {
-              navigate("/");
-              if (isMobile) onClose();
-            }}
-            sx={{
-              borderRadius: "8px",
-              bgcolor: location.pathname === "/" ? "#f8fafc" : "transparent",
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 40 }}>
-              <Box
-                sx={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: "8px",
-                  bgcolor: "#f0f0f0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <PersonIcon sx={{ color: "#6d6d6dff", fontSize: 18 }} />
-              </Box>
-            </ListItemIcon>
-            <ListItemText
-              primary="Colaboradores"
-              slotProps={{
-                primary: { sx: { fontWeight: 500, fontSize: "0.9rem" } },
+        {menuItems.map((item) => (
+          <ListItem key={item.path} disablePadding sx={{ mb: 1 }}>
+            <ListItemButton
+              onClick={() => {
+                navigate(item.path);
+                if (isMobile) onClose();
               }}
-            />
-            <ChevronRightIcon sx={{ color: "#aeb1b4ff", fontSize: 18 }} />
-          </ListItemButton>
-        </ListItem>
+              sx={{
+                borderRadius: "8px",
+                bgcolor:
+                  location.pathname === item.path ? "#f8fafc" : "transparent",
+                "&:hover": { bgcolor: "#f1f5f9" },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 40 }}>
+                <Box
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: "8px",
+                    bgcolor:
+                      location.pathname === item.path ? "#ffffff" : "#f0f0f0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border:
+                      location.pathname === item.path
+                        ? "1px solid #e2e8f0"
+                        : "none",
+                  }}
+                >
+                  {item.icon}
+                </Box>
+              </ListItemIcon>
+              <ListItemText
+                primary={item.text}
+                slotProps={{
+                  primary: {
+                    sx: {
+                      fontWeight: location.pathname === item.path ? 700 : 500,
+                      fontSize: "0.9rem",
+                      color:
+                        location.pathname === item.path ? "#2ecc71" : "#37474f",
+                    },
+                  },
+                }}
+              />
+              <ChevronRightIcon
+                sx={{
+                  color:
+                    location.pathname === item.path ? "#2ecc71" : "#aeb1b4ff",
+                  fontSize: 18,
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        ))}
       </List>
 
       <Box sx={{ p: 2, borderTop: "1px solid #f1f5f9" }}>
@@ -91,7 +127,7 @@ const Sidebar: React.FC<{
           startIcon={<HelpOutlineIcon />}
           onClick={() => setGuiaOpen(true)}
           sx={{
-            justifyContent: "flex-center",
+            justifyContent: "center",
             color: "#64748b",
             fontWeight: 600,
             fontSize: "0.85rem",

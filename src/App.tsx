@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { theme } from "./theme/theme";
 import { Layout } from "./components/Layout";
@@ -8,25 +14,32 @@ import EmployeeTable from "./components/employee-table";
 import SuccessModal from "./components/success-modal";
 import DeleteModal from "./components/delete-modal";
 import FeedbackSnackbar from "./components/feedback-snackbar";
+import Login from "./pages/login";
+import Register from "./pages/register";
+import Profile from "./pages/profile";
 import { useEmployees } from "./hooks/use-employees";
 import { useEmployeesForm } from "./hooks/use-employees-form";
 import { employeeService } from "./services/firebase";
+import { ProtectedRoute } from "./components/protected-route";
+import { AuthProvider } from "./contexts/auth-context";
+import NotFound from "./pages/not-found";
+import Departments from "./pages/departments";
+import { Employee } from "./types/employee";
 
 const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [deleteModalState, setDeleteModalState] = useState({
-    open: false,
-    id: "",
-  });
+  const [deleteModalState, setDeleteModalState] = useState<{
+    open: boolean;
+    id: string | string[];
+  }>({ open: false, id: "" });
   const [feedback, setFeedback] = useState({
     open: false,
     message: "",
     severity: "success" as "success" | "error",
   });
-
   const { employees, loading: loadingList } = useEmployees();
   const formState = useEmployeesForm(employees);
 
@@ -40,43 +53,34 @@ const App: React.FC = () => {
   const handleFinish = async () => {
     try {
       const success = await formState.submitForm();
-
       if (success) {
         setIsCompleted(true);
         setIsSuccessModalOpen(true);
         return;
       }
-
       showFeedback("Por favor, corrija os erros de validação.");
     } catch (error: any) {
       if (error.code === "permission-denied") {
         showFeedback("Erro: Sem permissão no Firebase (Rules).");
         return;
       }
-
-      if (
-        error.message?.includes("too large") ||
-        error.code === "invalid-argument"
-      ) {
-        showFeedback("A foto é muito grande para o banco de dados!");
-        return;
-      }
-
       showFeedback(`Erro Técnico: ${error.message || "Falha desconhecida"}`);
     }
   };
 
   const handleConfirmDelete = async () => {
     if (!deleteModalState.id) return;
-
+    const idsToDelete = Array.isArray(deleteModalState.id)
+      ? deleteModalState.id
+      : [deleteModalState.id];
+    if (idsToDelete.length === 0) return;
     try {
-      await employeeService.delete(deleteModalState.id);
-      showFeedback("Colaborador excluído com sucesso!", "success");
+      await employeeService.deleteMany(idsToDelete);
+      showFeedback("Operação realizada com sucesso!", "success");
     } catch (error) {
-      showFeedback("Erro ao excluir colaborador.");
-    } finally {
-      setDeleteModalState({ open: false, id: "" });
+      showFeedback("Erro ao excluir colaborador(es).");
     }
+    setDeleteModalState({ open: false, id: "" });
   };
 
   const renderForm = () => (
@@ -85,64 +89,111 @@ const App: React.FC = () => {
       isCompleted={isCompleted}
       onFinish={handleFinish}
       onUploadError={(msg) => showFeedback(msg, "error")}
-      handleBack={() =>
-        formState.activeStep === 0 ? navigate("/") : formState.handleBack()
-      }
+      handleBack={() => {
+        if (formState.activeStep === 0) {
+          navigate("/");
+          return;
+        }
+        formState.handleBack();
+      }}
     />
   );
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Layout>
+      <AuthProvider>
         <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route
             path="/"
             element={
-              <EmployeeTable
-                employees={employees}
-                loading={loadingList}
-                onAddClick={() => {
-                  formState.resetForm();
-                  setIsCompleted(false);
-                  navigate("/cadastrar");
-                }}
-                onEditClick={(employee) => {
-                  formState.prepareEdit(employee);
-                  setIsCompleted(false);
-                  navigate("/editar");
-                }}
-                onDeleteClick={(id) => setDeleteModalState({ open: true, id })}
-              />
+              <ProtectedRoute>
+                <Layout>
+                  <EmployeeTable
+                    employees={employees}
+                    loading={loadingList}
+                    onAddClick={() => {
+                      formState.resetForm();
+                      setIsCompleted(false);
+                      navigate("/cadastrar");
+                    }}
+                    onEditClick={(employee: Employee) => {
+                      formState.prepareEdit(employee);
+                      setIsCompleted(false);
+                      navigate("/editar");
+                    }}
+                    onDeleteClick={(id: string | string[]) =>
+                      setDeleteModalState({ open: true, id })
+                    }
+                  />
+                </Layout>
+              </ProtectedRoute>
             }
           />
-          <Route path="/cadastrar" element={renderForm()} />
-          <Route path="/editar" element={renderForm()} />
+          <Route
+            path="/cadastrar"
+            element={
+              <ProtectedRoute>
+                <Layout>{renderForm()}</Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editar"
+            element={
+              <ProtectedRoute>
+                <Layout>{renderForm()}</Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/departamentos"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Departments />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/perfil"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Profile />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/404" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>
-      </Layout>
-
-      <SuccessModal
-        open={isSuccessModalOpen}
-        isEdit={location.pathname === "/editar"}
-        onClose={() => {
-          setIsSuccessModalOpen(false);
-          setIsCompleted(false);
-          navigate("/");
-        }}
-      />
-
-      <DeleteModal
-        open={deleteModalState.open}
-        onClose={() => setDeleteModalState({ open: false, id: "" })}
-        onConfirm={handleConfirmDelete}
-      />
-
-      <FeedbackSnackbar
-        open={feedback.open}
-        message={feedback.message}
-        severity={feedback.severity}
-        onClose={() => setFeedback({ ...feedback, open: false })}
-      />
+        <SuccessModal
+          open={isSuccessModalOpen}
+          isEdit={location.pathname === "/editar"}
+          onClose={() => {
+            setIsSuccessModalOpen(false);
+            setIsCompleted(false);
+            navigate("/");
+          }}
+        />
+        <DeleteModal
+          open={deleteModalState.open}
+          title="Excluir Colaborador?"
+          description="Esta ação é permanente. O colaborador será removido da base de dados."
+          onClose={() => setDeleteModalState({ open: false, id: "" })}
+          onConfirm={handleConfirmDelete}
+        />
+        <FeedbackSnackbar
+          open={feedback.open}
+          message={feedback.message}
+          severity={feedback.severity}
+          onClose={() => setFeedback({ ...feedback, open: false })}
+        />
+      </AuthProvider>
     </ThemeProvider>
   );
 };

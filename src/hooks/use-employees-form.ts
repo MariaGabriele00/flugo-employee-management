@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { Employee } from "../types/employee";
 import { employeeService } from "../services/firebase";
-import {
-  employeeSchema,
-  stepProfissionaisSchema,
-} from "../schemas/employee-schema";
+import { employeeSchema, stepProfissionaisSchema } from "../schemas/employee";
 
 const initialData: Employee = {
   name: "",
   email: "",
   active: true,
-  department: "",
   avatar: "",
+  departmentId: "",
+  role: "",
+  admissionDate: "",
+  seniority: "Junior",
+  salary: 0,
+  managerId: "",
 };
 
 export const useEmployeesForm = (existingEmployees: Employee[]) => {
@@ -27,7 +29,6 @@ export const useEmployeesForm = (existingEmployees: Employee[]) => {
 
   const validateStep = () => {
     const schema = activeStep === 0 ? employeeSchema : stepProfissionaisSchema;
-
     const result = schema.safeParse(formData);
     const newErrors: any = {};
 
@@ -41,9 +42,7 @@ export const useEmployeesForm = (existingEmployees: Employee[]) => {
       const emailExists = existingEmployees.some(
         (e) => e.email === formData.email && e.id !== formData.id
       );
-      if (emailExists) {
-        newErrors.email = "Este e-mail já está cadastrado";
-      }
+      if (emailExists) newErrors.email = "Este e-mail já está cadastrado";
     }
 
     setErrors(newErrors);
@@ -70,7 +69,6 @@ export const useEmployeesForm = (existingEmployees: Employee[]) => {
 
   const submitForm = async () => {
     if (!validateStep()) return false;
-
     setLoading(true);
     try {
       await employeeService.save(formData);
